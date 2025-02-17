@@ -1,16 +1,6 @@
 #include "args.h"
 
-bool port_in_range(int port) {
-    return port >= 0 && port < UINT16_MAX;
-}
-
 int process_args(int argc, char **argv) {
-    parameters.interface = NULL;
-    parameters.ip_or_domain = NULL;
-    parameters.tcp_ports_count = 0;
-    parameters.udp_ports_count = 0;
-    parameters.timeout = 5000;
-
     if (argc == 1) {
         return LIST_INTERFACES;
     }
@@ -83,32 +73,16 @@ int process_args(int argc, char **argv) {
                     fprintf(stderr, "ERROR: -%c requires argument\n", optopt);
                     return EXIT_FAILURE;
                 }
-                break;
             default:
                 break;
         }
     }
 
-    for (int i = optind; i < argc; i++) {
-        if (parameters.ip_or_domain == NULL) {
-            parameters.ip_or_domain = argv[i];
-        } else {
-            fprintf(stderr, "ERROR: multiple domain names or IP addresses provided\n");
-            return EXIT_FAILURE;
-        }
-    }
+    return test_args(argc, argv);
+}
 
-    if (parameters.ip_or_domain == NULL) {
-        fprintf(stderr, "ERROR: missing domain name or IP address\n");
-        return EXIT_FAILURE;
-    }
-
-    if (parameters.tcp_ports_count == 0 && parameters.udp_ports_count == 0) {
-        fprintf(stderr, "ERROR: no ports provided\n");
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+bool port_in_range(int port) {
+    return port >= 0 && port < UINT16_MAX;
 }
 
 bool parse_ports(bool udp) {
@@ -147,4 +121,35 @@ bool parse_ports(bool udp) {
     }
 
     return true;
+}
+
+int test_args(int argc, char **argv) {
+    for (int i = optind; i < argc; i++) {
+        if (parameters.ip_or_domain == NULL) {
+            parameters.ip_or_domain = argv[i];
+        } else {
+            fprintf(stderr, "ERROR: multiple domain names or IP addresses provided\n");
+            return EXIT_FAILURE;
+        }
+    }
+
+    if (parameters.ip_or_domain == NULL) {
+        fprintf(stderr, "ERROR: missing domain name or IP address\n");
+        return EXIT_FAILURE;
+    }
+
+    if (parameters.tcp_ports_count == 0 && parameters.udp_ports_count == 0) {
+        fprintf(stderr, "ERROR: no ports provided\n");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+void parameters_setup(void) {
+    parameters.interface = NULL;
+    parameters.ip_or_domain = NULL;
+    parameters.tcp_ports_count = 0;
+    parameters.udp_ports_count = 0;
+    parameters.timeout = 5000;
 }
