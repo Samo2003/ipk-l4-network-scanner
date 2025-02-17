@@ -1,5 +1,5 @@
-#ifndef ARGS
-#define ARGS
+#ifndef ARGS_H
+#define ARGS_H
 
 #include <stdlib.h>
 #include <stdio.h>
