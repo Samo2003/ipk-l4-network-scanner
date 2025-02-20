@@ -5,6 +5,8 @@ int process_args(int argc, char **argv) {
         return LIST_INTERFACES;
     }
 
+    parameters_setup();
+
     static struct option long_opt[] = {
         {"interface", required_argument, 0, 'i'},
         {"pt", required_argument, 0, 't'},
