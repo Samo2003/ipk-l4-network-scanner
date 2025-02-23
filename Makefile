@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=gnu18 -Wextra -Wall -pedantic -g
+CFLAGS = -std=c17 -Wextra -Wall -pedantic -g
 PYTHON = python3
 
 TARGET = ipk-l4-scan

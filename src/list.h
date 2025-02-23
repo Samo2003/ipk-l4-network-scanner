@@ -1,6 +1,8 @@
 #ifndef LIST_H
 #define LIST_H
 
+#define _DEFAULT_SOURCE
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>

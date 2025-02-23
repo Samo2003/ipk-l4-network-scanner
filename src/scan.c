@@ -1,17 +1,21 @@
 #include "scan.h"
 
 int scan_ports(void) {
-    for(int i = 0; i < parameters.tcp_ports_count; i++) {
-        if (scan(parameters.tcp_ports[i], true) != EXIT_SUCCESS) {
-            return EXIT_FAILURE;
+    do {
+        fprintf(stdout, "Scanning ports for: %s\nPORT\tSTATE\n", network.scanned_ip_adresses.elements[network.scanned_ip_adresses.elem_count-1]);
+        continue;
+        for(int i = 0; i < parameters.tcp_ports_count; i++) {
+            if (scan(parameters.tcp_ports[i], true) != EXIT_SUCCESS) {
+                return EXIT_FAILURE;
+            }
         }
-    }
 
-    for(int i = 0; i < parameters.udp_ports_count; i++) {
-        if (scan(parameters.udp_ports[i], false) != EXIT_SUCCESS) {
-            return EXIT_FAILURE;
+        for(int i = 0; i < parameters.udp_ports_count; i++) {
+            if (scan(parameters.udp_ports[i], false) != EXIT_SUCCESS) {
+                return EXIT_FAILURE;
+            }
         }
-    }
+    } while(next_ip() != EXIT_FAILURE);
     return EXIT_SUCCESS;
 }
 

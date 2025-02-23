@@ -29,5 +29,7 @@ void list_destroy(list_t *list) {
     for(int i = 0; i < list->elem_count; i++) {
         free(list->elements[i]);
     }
-    free(list->elements);
+    if (list->elements != NULL) {
+        free(list->elements);
+    }
 }

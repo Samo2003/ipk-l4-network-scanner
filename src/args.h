@@ -25,9 +25,5 @@ typedef struct parameters {
 extern parameters_t parameters;
 
 int process_args(int argc, char **argv);
-bool port_in_range(int port);
-bool parse_ports(bool udp);
-int test_args(int argc, char **argv);
-void parameters_setup(void);
 
 #endif

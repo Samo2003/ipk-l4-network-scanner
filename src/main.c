@@ -11,7 +11,7 @@ int main (int argc, char **argv) {
         return list_active_interfaces();
     }
 
-    if (network_setup() != EXIT_SUCCESS) {
+    if (network_setup(true) != EXIT_SUCCESS) {
         network_clean_up();
         return EXIT_FAILURE;
     }
