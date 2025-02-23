@@ -55,6 +55,53 @@ static struct addrinfo *get_dst_addresses(void) {
     return res;
 }
 
+static uint16_t checksum(uint16_t *buffer, int buffer_len) {
+    uint32_t sum = 0;
+
+    while(buffer_len > 1) {
+        sum += *buffer++;
+        buffer_len -= 2;
+    }
+
+    if (buffer_len == 1) {
+        sum += *(uint8_t *)buffer;
+    }
+
+    while (sum >> 16) {
+        sum = (sum & 0xFFFF) + (sum >> 16);
+    }
+
+    return (uint16_t)(~sum);
+}
+
+static uint16_t ipv4_checksum(uint16_t *header, int header_size, uint8_t protocol) {
+    ipv4_psh_t psh = {0};
+    psh.src = ((struct sockaddr_in *)&network.src)->sin_addr.s_addr;
+    psh.dst = ((struct sockaddr_in *)&network.dst)->sin_addr.s_addr;
+    psh.protocol = protocol;
+    psh.header_len = header_size;
+
+    char buffer[sizeof(ipv4_psh_t) + header_size];
+    memcpy(buffer, &psh, sizeof(ipv4_psh_t));
+    memcpy(buffer + sizeof(ipv4_psh_t), header, header_size);
+
+    return checksum((uint16_t *)buffer, sizeof(buffer));
+}
+
+static uint16_t ipv6_checksum(uint16_t *header, int header_size, uint8_t protocol) {
+    ipv6_psh_t psh = {0};
+    memcpy(&psh.src, &((struct sockaddr_in6 *)&network.src)->sin6_addr, sizeof(struct in6_addr));
+    memcpy(&psh.dst, &((struct sockaddr_in6 *)&network.dst)->sin6_addr, sizeof(struct in6_addr));
+    psh.header_len = header_size;
+    psh.next_header = protocol;
+
+    char buffer[sizeof(ipv6_psh_t) + header_size];
+    memcpy(buffer, &psh, sizeof(ipv6_psh_t));
+    memcpy(buffer + sizeof(ipv6_psh_t), header, header_size);
+
+    return checksum((uint16_t *)buffer, sizeof(buffer));
+}
+
 int list_active_interfaces(void) {
     struct ifaddrs *ifa_list, *ifa;
     list_t printed_ifa = list_init();
@@ -64,6 +111,7 @@ int list_active_interfaces(void) {
         return EXIT_FAILURE;
     }
 
+    fprintf(stdout, "List of active interfaces:\n");
     for(ifa = ifa_list; ifa != NULL; ifa = ifa->ifa_next) {
         if (ifa->ifa_addr == NULL || !(ifa->ifa_flags & IFF_UP) || list_contains(&printed_ifa, ifa->ifa_name)) {
             continue;
@@ -122,6 +170,6 @@ int next_ip(void) {
     return network_setup(false);
 }
 
-uint16_t calculate_checksum(uint16_t *header, int header_size, int protocol) {
-    return 0;
+uint16_t calculate_checksum(uint16_t *header, int header_size, uint8_t protocol) {
+    return (network.family == AF_INET ? ipv4_checksum(header, header_size, protocol) : ipv6_checksum(header, header_size, protocol));
 }

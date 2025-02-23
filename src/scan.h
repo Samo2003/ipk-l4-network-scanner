@@ -8,6 +8,5 @@
 #define BUFFER_SIZE 1500
 
 int scan_ports(void);
-int scan(int port, bool tcp);
 
 #endif

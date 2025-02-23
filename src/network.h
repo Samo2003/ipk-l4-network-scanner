@@ -30,12 +30,28 @@ typedef struct network {
     list_t scanned_ip_adresses;
 } network_t;
 
+typedef struct ipv4_psh {
+    uint32_t src;
+    uint32_t dst;
+    uint8_t zero;
+    uint8_t protocol;
+    uint16_t header_len;
+} ipv4_psh_t;
+
+typedef struct ipv6_psh {
+    struct in6_addr src;
+    struct in6_addr dst;
+    uint32_t header_len;
+    uint8_t zero[3];
+    uint8_t next_header;
+} ipv6_psh_t;
+
 extern network_t network;
 
 int list_active_interfaces(void);
 int network_setup(bool first_setup);
 void network_clean_up(void);
 int next_ip(void);
-uint16_t calculate_checksum(uint16_t *header, int header_size, int protocol);
+uint16_t calculate_checksum(uint16_t *header, int header_size, uint8_t protocol);
 
 #endif
