@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-
+#include <netinet/ip.h>
 
 typedef enum sockets {
     TCP,

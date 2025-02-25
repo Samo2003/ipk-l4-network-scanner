@@ -38,7 +38,8 @@ static int get_interface_ip(void) {
         if (ifa->ifa_addr == NULL || ifa->ifa_addr->sa_family != network.family || strcmp(ifa->ifa_name, parameters.interface) != 0) {
             continue;
         }
-        memcpy(&network.src, ifa->ifa_addr, ifa->ifa_addr->sa_family == AF_INET ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6));
+        // memcpy(&network.src, ifa->ifa_addr, ifa->ifa_addr->sa_family == AF_INET ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6));
+        memcpy(&network.src, ifa->ifa_addr, sizeof(struct sockaddr));
         freeifaddrs(ifa_list);
         return EXIT_SUCCESS;
     }
@@ -79,7 +80,7 @@ static uint16_t ipv4_checksum(uint16_t *header, int header_size, uint8_t protoco
     psh.src = ((struct sockaddr_in *)&network.src)->sin_addr.s_addr;
     psh.dst = ((struct sockaddr_in *)&network.dst)->sin_addr.s_addr;
     psh.protocol = protocol;
-    psh.header_len = header_size;
+    psh.header_len = htons(header_size);
 
     char buffer[sizeof(ipv4_psh_t) + header_size];
     memcpy(buffer, &psh, sizeof(ipv4_psh_t));
@@ -92,7 +93,7 @@ static uint16_t ipv6_checksum(uint16_t *header, int header_size, uint8_t protoco
     ipv6_psh_t psh = {0};
     memcpy(&psh.src, &((struct sockaddr_in6 *)&network.src)->sin6_addr, sizeof(struct in6_addr));
     memcpy(&psh.dst, &((struct sockaddr_in6 *)&network.dst)->sin6_addr, sizeof(struct in6_addr));
-    psh.header_len = header_size;
+    psh.header_len = htonl(header_size);
     psh.next_header = protocol;
 
     char buffer[sizeof(ipv6_psh_t) + header_size];
@@ -155,7 +156,6 @@ int network_setup(bool first_setup) {
         network.active = addr->ai_next;
         return setup_sockets();
     }
-
     return EXIT_FAILURE;
 }
 

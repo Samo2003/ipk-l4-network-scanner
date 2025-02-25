@@ -12,7 +12,7 @@ static int scan(int port, bool tcp) {
     socklen_t place_holder_length = sizeof(struct sockaddr_storage);
     sockets_t socket = tcp ? TCP : ICMP;
 
-    bool tcp_retry = true;
+    bool tcp_retry = tcp;
     while(true) {
         if (out_of_time()) {
             if (tcp_retry) {
@@ -22,11 +22,10 @@ static int scan(int port, bool tcp) {
             }
             break;
         }
-        
         if (wait_response(socket) > 0) {
-            int b_rcv = recvfrom(network.sockets[socket], rcv_buffer, BUFFER_SIZE, 0, (struct sockaddr *)&place_holder, &place_holder_length);
+            size_t b_rcv = recvfrom(network.sockets[socket], rcv_buffer, BUFFER_SIZE, 0, (struct sockaddr *)&place_holder, &place_holder_length);
             if (b_rcv > 0) {
-                if ((tcp ? handle_tcp_msg(rcv_buffer, b_rcv) : handle_udp_msg(rcv_buffer, b_rcv)) == EXIT_SUCCESS) {
+                if ((tcp ? handle_tcp_msg(rcv_buffer, b_rcv, port) : handle_udp_msg(rcv_buffer, b_rcv, port)) == EXIT_SUCCESS) {
                     return EXIT_SUCCESS;
                 }
             }

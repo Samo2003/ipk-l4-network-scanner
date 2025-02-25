@@ -10,6 +10,8 @@ bool out_of_time(void) {
     struct timeval time_now = {0};
     gettimeofday(&time_now, NULL);
     long time_passed = parameters.timeout - ((time_now.tv_sec - start_time.tv_sec) * 1000 + (time_now.tv_usec - start_time.tv_usec) / 1000);
+    timeout.tv_sec = time_passed / 1000;
+    timeout.tv_usec = (time_passed % 1000) * 1000;
     return time_passed <= 0;
 }
 
