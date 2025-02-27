@@ -38,8 +38,7 @@ static int get_interface_ip(void) {
         if (ifa->ifa_addr == NULL || ifa->ifa_addr->sa_family != network.family || strcmp(ifa->ifa_name, parameters.interface) != 0) {
             continue;
         }
-        // memcpy(&network.src, ifa->ifa_addr, ifa->ifa_addr->sa_family == AF_INET ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6));
-        memcpy(&network.src, ifa->ifa_addr, sizeof(struct sockaddr));
+        memcpy(&network.src, ifa->ifa_addr, ifa->ifa_addr->sa_family == AF_INET ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6));
         freeifaddrs(ifa_list);
         return EXIT_SUCCESS;
     }
@@ -146,7 +145,8 @@ int network_setup(bool first_setup) {
         char ip_str[INET6_ADDRSTRLEN] = {0};
         inet_ntop(network.family, network.family == AF_INET ? (void *)&((struct sockaddr_in *)&network.dst)->sin_addr : (void *)&((struct sockaddr_in6 *)&network.dst)->sin6_addr, ip_str, INET6_ADDRSTRLEN);
         
-        if (list_contains(&network.scanned_ip_adresses, ip_str) || get_interface_ip() != EXIT_SUCCESS) {
+        // if (list_contains(&network.scanned_ip_adresses, ip_str) || get_interface_ip() != EXIT_SUCCESS) {
+        if (get_interface_ip() != EXIT_SUCCESS) {
             continue;
         }
         if (list_insert(&network.scanned_ip_adresses, ip_str) != EXIT_SUCCESS) {
@@ -167,6 +167,7 @@ void network_clean_up(void) {
 
 int next_ip(void) {
     close_sockets();
+    printf("\n");       //TODO na prejdenie vsetkych ip
     return network_setup(false);
 }
 
