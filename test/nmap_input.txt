@@ -1,0 +1,8 @@
+-sU -sT -p 21,22,53,67,143 localhost
+-sU -p 22-40 localhost
+-sT -p 22,23 localhost
+-sT -p 22,23 ::1 -6
+-sU -p 22,23 ::1 -6
+-sT -p 22 localhost
+-sT -p 20-25 scanme.nmap.org
+-sU -p 22,53 scanme.nmap.org

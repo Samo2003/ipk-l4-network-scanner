@@ -48,6 +48,7 @@ static int get_interface_ip(void) {
 
 static struct addrinfo *get_dst_addresses(void) {
     struct addrinfo *res, hints = {0};
+    hints.ai_socktype = SOCK_RAW;
     if (getaddrinfo(parameters.ip_or_domain, NULL, &hints, &res) != 0) {
         perror("getaddrinfo");
         return NULL;
@@ -145,13 +146,13 @@ int network_setup(bool first_setup) {
         char ip_str[INET6_ADDRSTRLEN] = {0};
         inet_ntop(network.family, network.family == AF_INET ? (void *)&((struct sockaddr_in *)&network.dst)->sin_addr : (void *)&((struct sockaddr_in6 *)&network.dst)->sin6_addr, ip_str, INET6_ADDRSTRLEN);
         
-        // if (list_contains(&network.scanned_ip_adresses, ip_str) || get_interface_ip() != EXIT_SUCCESS) {
-        if (get_interface_ip() != EXIT_SUCCESS) {
+        if (list_contains(&network.scanned_ip_adresses, ip_str) || get_interface_ip() != EXIT_SUCCESS) {
             continue;
         }
         if (list_insert(&network.scanned_ip_adresses, ip_str) != EXIT_SUCCESS) {
             return EXIT_FAILURE;
         }
+        fprintf(stdout, "Scanning ports for: %s\nPORT\tSTATE\n", ip_str);
 
         network.active = addr->ai_next;
         return setup_sockets();
@@ -167,7 +168,6 @@ void network_clean_up(void) {
 
 int next_ip(void) {
     close_sockets();
-    printf("\n");
     return network_setup(false);
 }
 

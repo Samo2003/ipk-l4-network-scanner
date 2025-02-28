@@ -38,8 +38,6 @@ static int scan(int port, bool tcp) {
 
 int scan_ports(void) {
     do {
-        fprintf(stdout, "Scanning ports for: %s\nPORT\tSTATE\n", network.scanned_ip_adresses.elements[network.scanned_ip_adresses.elem_count-1]);
-
         for(int i = 0; i < parameters.tcp_ports_count; i++) {
             if (scan(parameters.tcp_ports[i], true) != EXIT_SUCCESS) {
                 return EXIT_FAILURE;
