@@ -1,0 +1,15 @@
+localhost
+--pu 22 -i lo
+-i lo -t 22-21 localhost
+-i lo -t 22.21 localhost
+-i lo -t 22,21-23 localhost
+-i -t 22 localhost
+-i lo -t 22 localhost localhost
+-i lo localhost
+-i lo --pu 2a localhost
+-i lo --pu 2-3a localhost
+-i lo --pu 22,23,24a localhost
+-i eth0 --pt 22 -i lo localhost
+-i lo -u 23 --pu 24 localhost
+-i lo localhost -t 23 localhost
+-i lo localhost -t 23 -w 2000 -w 5000
