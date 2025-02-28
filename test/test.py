@@ -42,7 +42,6 @@ def test_interface_list():
 
     result = subprocess.run(['ifconfig'], capture_output=True, text=True)
     interfaces = result.stdout.splitlines()
-    
     active_interfaces = []
     
     for line in interfaces:
@@ -110,7 +109,7 @@ for valid, nmap in zip(VALID_TESTS, NMAP_INPUT):
 print("-----------------------------------------")
 print("Summary:")
 print(f"Invalid inputs: {successful_invalid_tests}/{invalid_tests}")
-print(f"IInterface test: {interface_test}/1")
+print(f"Interface test: {interface_test}/1")
 print(f"Valid inputs: {successful_valid_tests}/{valid_tests}")
 percentage = (successful_invalid_tests + successful_valid_tests + interface_test)/total_tests * 100
 print(f"Total percents: {int(percentage)}%")

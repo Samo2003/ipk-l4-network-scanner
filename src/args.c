@@ -14,12 +14,17 @@ static bool port_in_range(int port) {
 
 static bool parse_ports(bool udp) {
     char *extra_ptr, extra;
-    int start, end;
+    int start, end, commas = 0;
 
     uint16_t *ports = udp ? parameters.udp_ports : parameters.tcp_ports;
     int *port_count = udp ? &parameters.udp_ports_count : &parameters.tcp_ports_count;
 
     if (strchr(optarg, ',') != NULL) {
+        char *str = optarg;
+        while ((str = strchr(str, ',')) != NULL) {
+            commas++;
+            str++;
+        }
         char *token = strtok(optarg, ",");
         while (token != NULL) {
             int port = strtol(token, &extra_ptr, 10);
@@ -29,6 +34,11 @@ static bool parse_ports(bool udp) {
             }
             ports[(*port_count)++] = port;
             token = strtok(NULL, ",");
+        }
+        
+        if (commas != *port_count - 1) {
+            fprintf(stderr, "ERROR: invalid port number\n");
+            return false;
         }
     } else if (strchr(optarg, '-') != NULL) {
         if (sscanf(optarg, "%d-%d%c", &start, &end, &extra) != 2 || start > end || start < 0 || end > UINT16_MAX) {
@@ -149,7 +159,8 @@ int process_args(int argc, char **argv) {
                     return EXIT_FAILURE;
                 }
             default:
-                break;
+                fprintf(stderr, "ERROR: unknown parameter -%c\n", optopt);
+                return EXIT_FAILURE;
         }
     }
 
