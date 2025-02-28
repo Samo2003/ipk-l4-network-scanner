@@ -167,7 +167,7 @@ void network_clean_up(void) {
 
 int next_ip(void) {
     close_sockets();
-    printf("\n");       //TODO na prejdenie vsetkych ip
+    printf("\n");
     return network_setup(false);
 }
 

@@ -14,32 +14,27 @@ int send_udp_msg(int port) {
 }
 
 int handle_udp_msg(char *datagram, size_t datagram_len, int port) {
+    struct udphdr *udp_header;
     if (network.family == AF_INET) {
         struct icmp *header = (struct icmp *)(datagram + sizeof(struct ip));
         if (header->icmp_type == ICMP_UNREACH && header->icmp_code == ICMP_UNREACH_PORT) {              
-            struct udphdr *udp_header = (struct udphdr *)(datagram + datagram_len - 8);
-            
-            if(udp_header->uh_sport != htons(port)) {
-                return EXIT_FAILURE;
-            }
-
-            fprintf(stdout, "%d/udp\tclosed\n", port);
-            return EXIT_SUCCESS;
+            udp_header = (struct udphdr *)(datagram + datagram_len - 8);
+        } else {
+            return EXIT_FAILURE;
         }
     } else {
         struct icmp6_hdr *header = (struct icmp6_hdr *)datagram;
         if (header->icmp6_type == ICMP6_DST_UNREACH && header->icmp6_code == ICMP6_DST_UNREACH_NOPORT) {
-
             uint8_t *packet = header->icmp6_dataun.icmp6_un_data8 + 4;
-            struct udphdr *udp_header = (struct udphdr *)(packet + sizeof(struct ip6_hdr));
-
-            if(udp_header->uh_dport != htons(port)) {
-                return EXIT_FAILURE;
-            }
-            
-            fprintf(stdout, "%d/udp\tclosed\n", port);
-            return EXIT_SUCCESS;
+            udp_header = (struct udphdr *)(packet + sizeof(struct ip6_hdr));            
+        } else {
+            return EXIT_FAILURE;
         }
     }
-    return EXIT_FAILURE;
+    if(udp_header->uh_dport != htons(port)) {
+        return EXIT_FAILURE;
+    }
+    
+    fprintf(stdout, "%d/udp\tclosed\n", port);
+    return EXIT_SUCCESS;
 }
