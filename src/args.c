@@ -1,5 +1,19 @@
+/**
+ * @file args.c
+ * @brief Implementation of command-line argument processing.
+ *
+ * This source file contains the implementation of functions for processing and 
+ * validating command-line arguments.
+ *
+ * @author Samuel Stefanik (xstefas00)
+ * @date   2025-02-13
+ */
 #include "args.h"
 
+/**
+ * @brief Initializes the parameters structure with default values.
+ * 
+ */
 static void parameters_setup(void) {
     parameters.interface = NULL;
     parameters.ip_or_domain = NULL;
@@ -8,10 +22,22 @@ static void parameters_setup(void) {
     parameters.timeout = 5000;
 }
 
+/**
+ * @brief Checks if a given port number is within the valid range.
+ * 
+ * @param port The port number to check.
+ * @return true if the port is within the valid range, false otherwise.
+ */
 static bool port_in_range(int port) {
     return port >= 0 && port < UINT16_MAX;
 }
 
+/**
+ * @brief Parses the port numbers from the input argument and stores them in the appropriate array.
+ * 
+ * @param udp A boolean indicating whether to parse UDP ports (true) or TCP ports (false).
+ * @return true if all ports were parsed successfully, false if an error occurred.
+ */
 static bool parse_ports(bool udp) {
     char *extra_ptr, extra;
     int start, end, commas = 0;
@@ -21,6 +47,7 @@ static bool parse_ports(bool udp) {
 
     if (strchr(optarg, ',') != NULL) {
         char *str = optarg;
+        // Counting number of commas
         while ((str = strchr(str, ',')) != NULL) {
             commas++;
             str++;
@@ -36,6 +63,7 @@ static bool parse_ports(bool udp) {
             token = strtok(NULL, ",");
         }
         
+        // More commas than ports
         if (commas != *port_count - 1) {
             fprintf(stderr, "ERROR: invalid port number\n");
             return false;
@@ -60,6 +88,13 @@ static bool parse_ports(bool udp) {
     return true;
 }
 
+/**
+ * @brief Validates and processes command-line arguments after option parsing.
+ * 
+ * @param argc The argument count.
+ * @param argv The argument vector.
+ * @return EXIT_SUCCESS if the arguments are valid, otherwise EXIT_FAILURE.
+ */
 static int test_args(int argc, char **argv) {
     for (int i = optind; i < argc; i++) {
         if (parameters.ip_or_domain == NULL) {
@@ -83,6 +118,13 @@ static int test_args(int argc, char **argv) {
     return EXIT_SUCCESS;
 }
 
+/**
+ * @brief Parses and processes command-line arguments.
+ * 
+ * @param argc The argument count.
+ * @param argv The argument vector.
+ * @return LIST_INTERFACES if no arguments are given, EXIT_SUCCESS on success, or EXIT_FAILURE on failure.
+ */
 int process_args(int argc, char **argv) {
     if (argc == 1) {
         return LIST_INTERFACES;

@@ -90,7 +90,7 @@ def test_valid_input(args, nmap_args):
     print(f"TEST {valid_tests}: {GREEN}[PASS]{RESET}")
     successful_valid_tests += 1
     
-print("Running invalid tests:")
+print("Testing invalid inputs:")
 for invalid in INVALID_TESTS:
     test_invalid_input(invalid)
 

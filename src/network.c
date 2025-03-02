@@ -1,11 +1,39 @@
+/**
+ * @file network.c
+ * @brief Network management functions for setting up and cleaning up network resources.
+ *
+ * This file implements the functions responsible for network initialization,
+ * socket setup, IP address management, and clean-up operations. It includes functions
+ * for setting up network sockets, calculating checksums for IPv4 and IPv6 packets, 
+ * managing active and scanned IP addresses, and handling network configurations.
+ *
+ * @author Samuel Stefanik (xstefas00)
+ * @date   2025-02-17
+ */
 #include "network.h"
 
+/**
+ * @brief Closes all opened network sockets.
+ * 
+ * This function iterates over all the sockets in the `network.sockets` array and closes
+ * each of them.
+ */
 static void close_sockets(void) {
     for(int i = 0; i < SOCKET_COUNT; i++) {
         close(network.sockets[i]);
     }
 }
 
+/**
+ * @brief Initializes raw sockets for TCP, UDP, and ICMP communication.
+ * 
+ * This function creates three raw sockets for the TCP, UDP, and ICMP (or ICMPv6 depending on the network family) protocols.
+ * It then binds these sockets to the specified network interface.
+ * If socket creation or binding fails, it cleans up any open sockets and returns an error code.
+ * 
+ * @return EXIT_SUCCESS if the sockets were successfully created and bound, 
+ *         EXIT_FAILURE if there was an error during socket creation or binding.
+ */
 static int setup_sockets(void) {
     network.sockets[TCP] = socket(network.family, SOCK_RAW, IPPROTO_TCP);
     network.sockets[UDP] = socket(network.family, SOCK_RAW, IPPROTO_UDP);
@@ -27,6 +55,15 @@ static int setup_sockets(void) {
     return EXIT_SUCCESS;
 }
 
+/**
+ * @brief Retrieves the IP address of the specified network interface.
+ * 
+ * This function queries the system for all network interfaces and searches for the one specified in the 
+ * `parameters.interface` field. It only processes interfaces that match the specified network family (IPv4 or IPv6).
+ * 
+ * @return EXIT_SUCCESS if the IP address was successfully retrieved, 
+ *         EXIT_FAILURE if the interface was not found or there was an error.
+ */
 static int get_interface_ip(void) {
     struct ifaddrs *ifa_list, *ifa;
 
@@ -46,6 +83,15 @@ static int get_interface_ip(void) {
     return EXIT_FAILURE;
 }
 
+/**
+ * @brief Retrieves the destination addresses for the given IP or domain.
+ * 
+ * This function uses `getaddrinfo` to resolve the provided IP address or domain name 
+ * into a list of destination addresses. It sets up the `hints` structure 
+ * to request raw socket addresses.
+ * 
+ * @return A pointer to the list of resolved addresses on success, or `NULL` on failure.
+ */
 static struct addrinfo *get_dst_addresses(void) {
     struct addrinfo *res, hints = {0};
     hints.ai_socktype = SOCK_RAW;
@@ -56,6 +102,17 @@ static struct addrinfo *get_dst_addresses(void) {
     return res;
 }
 
+/**
+ * @brief Calculates the checksum for a given buffer.
+ * 
+ * This function computes the checksum for the provided buffer of data. It processes the buffer 
+ * in 16-bit words, adding the values together and handling any overflow. If the buffer length is 
+ * odd, the last byte is handled separately.
+ * 
+ * @param buffer A pointer to the buffer containing the data to calculate the checksum for.
+ * @param buffer_len The length of the buffer in bytes.
+ * @return The calculated checksum as a 16-bit unsigned integer.
+ */
 static uint16_t checksum(uint16_t *buffer, int buffer_len) {
     uint32_t sum = 0;
 
@@ -75,6 +132,18 @@ static uint16_t checksum(uint16_t *buffer, int buffer_len) {
     return (uint16_t)(~sum);
 }
 
+/**
+ * @brief Calculates the checksum for an IPv4 header with pseudo-header.
+ * 
+ * This function computes the checksum for an IPv4 header, including the pseudo-header 
+ * to calculate checksums. The pseudo-header contains the source and destination IP addresses, the protocol, 
+ * and the length of the header. The checksum is calculated over the concatenation of the pseudo-header and the actual TCP/UDP header.
+ * 
+ * @param header A pointer to the TCP/UDP header.
+ * @param header_size The size of the IPv4 header.
+ * @param protocol The protocol for which the checksum is being calculated.
+ * @return The calculated checksum as a 16-bit unsigned integer.
+ */
 static uint16_t ipv4_checksum(uint16_t *header, int header_size, uint8_t protocol) {
     ipv4_psh_t psh = {0};
     psh.src = ((struct sockaddr_in *)&network.src)->sin_addr.s_addr;
@@ -89,6 +158,18 @@ static uint16_t ipv4_checksum(uint16_t *header, int header_size, uint8_t protoco
     return checksum((uint16_t *)buffer, sizeof(buffer));
 }
 
+/**
+ * @brief Calculates the checksum for an IPv6 header with pseudo-header.
+ * 
+ * This function computes the checksum for an IPv6 header, including the pseudo-header. 
+ * The pseudo-header contains the source and destination IPv6 addresses, the next header protocol, and the length of the TCP/UDP header. 
+ * The checksum is calculated over the concatenation of the pseudo-header and the actual IPv6 header.
+ * 
+ * @param header A pointer to the TCP/UDP header.
+ * @param header_size The size of the TCP/UDP header.
+ * @param protocol The protocol for which the checksum is being calculated.
+ * @return The calculated checksum as a 16-bit unsigned integer.
+ */
 static uint16_t ipv6_checksum(uint16_t *header, int header_size, uint8_t protocol) {
     ipv6_psh_t psh = {0};
     memcpy(&psh.src, &((struct sockaddr_in6 *)&network.src)->sin6_addr, sizeof(struct in6_addr));
@@ -103,6 +184,12 @@ static uint16_t ipv6_checksum(uint16_t *header, int header_size, uint8_t protoco
     return checksum((uint16_t *)buffer, sizeof(buffer));
 }
 
+/**
+ * @brief Lists all active network interfaces.
+ * 
+ * @return EXIT_SUCCESS if the list of active interfaces is successfully printed, 
+ *         or EXIT_FAILURE if an error occurs.
+ */
 int list_active_interfaces(void) {
     struct ifaddrs *ifa_list, *ifa;
     list_t printed_ifa = list_init();
@@ -131,6 +218,15 @@ int list_active_interfaces(void) {
     return EXIT_SUCCESS;
 }
 
+/**
+ * @brief Initializes the network setup for scanning.
+ * 
+ * @param first_setup A boolean flag indicating whether this is the first setup (initial scan).
+ *                    If true, the network setup will include initializing the list of scanned IPs.
+ * 
+ * @return EXIT_SUCCESS if the network setup is completed successfully and sockets are set up,
+ *         or EXIT_FAILURE if an error occurs during the setup.
+ */
 int network_setup(bool first_setup) {
     struct addrinfo *addr, *tmp;
     if (first_setup) {
@@ -160,17 +256,35 @@ int network_setup(bool first_setup) {
     return EXIT_FAILURE;
 }
 
+/**
+ * @brief Cleans up network resources.
+ * 
+ */
 void network_clean_up(void) {
     list_destroy(&network.scanned_ip_adresses);
     freeaddrinfo(network.list);
     close_sockets();
 }
 
+/**
+ * @brief Proceeds to the next IP address in the scan.
+ * 
+ * @return EXIT_SUCCESS on success, or EXIT_FAILURE on error.
+ */
 int next_ip(void) {
     close_sockets();
+    fprintf(stdout, "\n");
     return network_setup(false);
 }
 
+/**
+ * @brief Calculates the checksum for the given header based on the network family.
+ * 
+ * @param header The header data for which the checksum will be calculated.
+ * @param header_size The size of the header in bytes.
+ * @param protocol The protocol used in the header.
+ * @return The calculated checksum value.
+ */
 uint16_t calculate_checksum(uint16_t *header, int header_size, uint8_t protocol) {
     return (network.family == AF_INET ? ipv4_checksum(header, header_size, protocol) : ipv6_checksum(header, header_size, protocol));
 }

@@ -1,5 +1,28 @@
+/**
+ * @file scan.c
+ * @brief Network scanning functions.
+ *
+ * This file contains functions for scanning ports and sending network messages 
+ * using different protocols. It includes the main scanning logic 
+ * for scanning the specified ports on a given network and handling responses 
+ * from those ports.
+ *
+ * @author Samuel Stefanik (xstefas00)
+ * @date   2025-02-19
+ */
 #include "scan.h"
 
+/**
+ * @brief Scans a specified port using either TCP or UDP protocol.
+ *
+ * This function sends a message to a given port using either the TCP or UDP protocol, waits for a response, 
+ * and processes the received message. It handles retries for TCP messages in case of no response 
+ * and outputs the port status.
+ * 
+ * @param port The port number to scan.
+ * @param tcp A boolean flag indicating whether to use TCP (true) or UDP (false).
+ * @return EXIT_SUCCESS if the scan completes successfully, or EXIT_FAILURE if an error occurs.
+ */
 static int scan(int port, bool tcp) {
     if ((tcp ? send_tcp_msg(port) : send_udp_msg(port)) < 0) {
         perror("sendto");
@@ -36,6 +59,11 @@ static int scan(int port, bool tcp) {
     return EXIT_SUCCESS;
 }
 
+/**
+ * @brief Scans a list of TCP and UDP ports.
+ * 
+ * @return EXIT_SUCCESS if all port scans complete successfully, or EXIT_FAILURE if any scan fails.
+ */
 int scan_ports(void) {
     do {
         for(int i = 0; i < parameters.tcp_ports_count; i++) {
