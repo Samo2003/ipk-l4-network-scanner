@@ -40,6 +40,10 @@ static int scan(int port, bool tcp) {
         if (out_of_time()) {
             if (tcp_retry) {
                 tcp_retry = false;
+                if (send_tcp_msg(port) < 0) {
+                    perror("sendto");
+                    return EXIT_FAILURE;
+                }
                 set_time();
                 continue;
             }
