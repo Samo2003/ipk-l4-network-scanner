@@ -9,7 +9,7 @@
  * @author Samuel Stefanik (xstefas00)
  * @date   2025-02-19
  */
-#include "udp.h"
+#include "../lib/udp.h"
 
 /**
  * @brief Prepares a UDP header for sending a UDP packet.

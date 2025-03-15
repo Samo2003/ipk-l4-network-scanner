@@ -9,7 +9,7 @@ TEST = test.py
 
 # Source files and header files
 SRCS = $(wildcard src/*.c)
-LIBS = $(wildcard src/*.h)
+LIBS = $(wildcard lib/*.h)
 
 # Object files
 OBJS = $(SRCS:.c=.o)

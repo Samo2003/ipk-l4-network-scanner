@@ -10,7 +10,7 @@
  * @author Samuel Stefanik (xstefas00)
  * @date   2025-02-19
  */
-#include "scan.h"
+#include "../lib/scan.h"
 
 /**
  * @brief Scans a specified port using either TCP or UDP protocol.

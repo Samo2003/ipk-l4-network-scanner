@@ -11,7 +11,7 @@
  * @author Samuel Stefanik (xstefas00)
  * @date   2025-02-13
  */
-#include "scan.h"
+#include "../lib/scan.h"
 #include <signal.h>
 
 parameters_t parameters = {0};  /**< Global structure for command-line parameters. */

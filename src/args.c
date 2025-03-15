@@ -8,7 +8,7 @@
  * @author Samuel Stefanik (xstefas00)
  * @date   2025-02-13
  */
-#include "args.h"
+#include "../lib/args.h"
 
 /**
  * @brief Initializes the parameters structure with default values.

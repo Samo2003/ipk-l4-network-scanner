@@ -9,7 +9,7 @@
  * @author Samuel Stefanik (xstefas00)
  * @date   2025-02-19
  */
-#include "tcp.h"
+#include "../lib/tcp.h"
 
 /**
  * @brief Prepares a TCP header for sending a SYN packet.

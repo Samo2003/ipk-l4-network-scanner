@@ -10,7 +10,7 @@
  * @author Samuel Stefanik (xstefas00)
  * @date   2025-02-17
  */
-#include "network.h"
+#include "../lib/network.h"
 
 /**
  * @brief Closes all opened network sockets.

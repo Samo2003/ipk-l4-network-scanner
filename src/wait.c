@@ -1,4 +1,4 @@
-#include "wait.h"
+#include "../lib/wait.h"
 
 struct timeval start_time, timeout;
 

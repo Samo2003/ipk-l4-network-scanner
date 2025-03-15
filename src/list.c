@@ -8,7 +8,7 @@
  * @author Samuel Stefanik (xstefas00)
  * @date   2025-02-17
  */
-#include "list.h"
+#include "../lib/list.h"
 
 /**
  * @brief Initializes an empty list.
