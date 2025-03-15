@@ -22,7 +22,7 @@ successful_valid_tests = 0
 valid_tests = 0
 interface_test = 0
 
-def test_invalid_input(args):
+def test_invalid_input(args: str):
     global total_tests, successful_invalid_tests, invalid_tests
     total_tests += 1
     invalid_tests += 1
@@ -56,18 +56,24 @@ def test_interface_list():
         interface_test += 1
     else:
         print(f"TEST {valid_tests}: {RED}[FAIL]{RESET}")
-    
 
-def parse_output(output):
+def parse_scanner_output(output: str):
+    ports = set()
+    for line in output.splitlines():
+        parts = line.split()
+        ports.add(f"{parts[1]} {parts[2]} {parts[3]}") 
+    return ports
+
+def parse_nmap_output(output: str):
     ports = set()
     for line in output.splitlines():
         match = re.match(r"(\d+)/(tcp|udp)\s+(\w+)", line)
         if match:
             port, protocol, state = match.groups()
-            ports.add(f"{port}/{protocol} {state}")
+            ports.add(f"{port} {protocol} {state}")
     return ports
 
-def test_valid_input(args, nmap_args):
+def test_valid_input(args: str, nmap_args: str):
     global total_tests, successful_valid_tests, valid_tests
     total_tests += 1
     valid_tests += 1
@@ -79,8 +85,8 @@ def test_valid_input(args, nmap_args):
         print(f"TEST {valid_tests}: {RED}[FAIL]{RESET} scanner or nmap failed")
         return
     
-    scanner_ports = parse_output(scanner_output.stdout)
-    nmap_ports = parse_output(nmap_output.stdout)
+    scanner_ports = parse_scanner_output(scanner_output.stdout)
+    nmap_ports = parse_nmap_output(nmap_output.stdout.replace("open|filtered", "open"))
 
     for port in scanner_ports:
         if port not in nmap_ports:

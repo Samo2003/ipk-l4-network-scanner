@@ -49,6 +49,7 @@ typedef struct network {
     int family;                           /**< Address family (IPv4 or IPv6) */
     int sockets[SOCKET_COUNT];            /**< Array holding the socket file descriptors for each socket type */
     list_t scanned_ip_adresses;           /**< List of scanned IP addresses */
+    char ip_str[INET6_ADDRSTRLEN];        /**< IP address in string format */
 } network_t;
 
 /**

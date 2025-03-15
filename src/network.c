@@ -248,7 +248,8 @@ int network_setup(bool first_setup) {
         if (list_insert(&network.scanned_ip_adresses, ip_str) != EXIT_SUCCESS) {
             return EXIT_FAILURE;
         }
-        fprintf(stdout, "Scanning ports for: %s\nPORT\tSTATE\n", ip_str);
+        memset(network.ip_str, 0, INET6_ADDRSTRLEN);
+        memcpy(network.ip_str, ip_str, INET6_ADDRSTRLEN);
 
         network.active = addr->ai_next;
         return setup_sockets();
@@ -273,7 +274,6 @@ void network_clean_up(void) {
  */
 int next_ip(void) {
     close_sockets();
-    fprintf(stdout, "\n");
     return network_setup(false);
 }
 

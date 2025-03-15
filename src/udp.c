@@ -68,6 +68,6 @@ int handle_udp_msg(char *datagram, size_t datagram_len, int port) {
         return EXIT_FAILURE;
     }
     
-    fprintf(stdout, "%d/udp\tclosed\n", port);
+    fprintf(stdout, "%s %d udp closed\n", network.ip_str, port);
     return EXIT_SUCCESS;
 }

@@ -58,8 +58,8 @@ static int scan(int port, bool tcp) {
             }
         }
     }
-
-    tcp ? fprintf(stdout, "%d/tcp\tfiltered\n", port) : fprintf(stdout, "%d/udp\topen\n", port);
+    fprintf(stdout, "%s %d ", network.ip_str, port);
+    tcp ? fprintf(stdout, "tcp filtered\n") : fprintf(stdout, "udp open\n");
     return EXIT_SUCCESS;
 }
 

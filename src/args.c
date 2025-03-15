@@ -33,6 +33,18 @@ static bool port_in_range(int port) {
 }
 
 /**
+ * @brief Comparison function for qsort to sort uint16_t numbers.
+ *
+ * @param a Pointer to the first element to compare.
+ * @param b Pointer to the second element to compare.
+ * @return A negative value if *a is less than *b, zero if they are equal, 
+ *         and a positive value if *a is greater than *b.
+ */
+static int compare(const void *a, const void *b) {
+    return (*(uint16_t*)a > *(uint16_t*)b) - (*(uint16_t*)a < *(uint16_t*)b);
+}
+
+/**
  * @brief Parses the port numbers from the input argument and stores them in the appropriate array.
  * 
  * @param udp A boolean indicating whether to parse UDP ports (true) or TCP ports (false).
@@ -68,6 +80,8 @@ static bool parse_ports(bool udp) {
             fprintf(stderr, "ERROR: invalid port number\n");
             return false;
         }
+
+        qsort(ports, *port_count, sizeof(uint16_t), compare);
     } else if (strchr(optarg, '-') != NULL) {
         if (sscanf(optarg, "%d-%d%c", &start, &end, &extra) != 2 || start > end || start < 0 || end > UINT16_MAX) {
             fprintf(stderr, "ERROR: invalid port range\n");
@@ -86,6 +100,21 @@ static bool parse_ports(bool udp) {
     }
 
     return true;
+}
+
+static void print_help(void) {
+    fprintf(stdout, "Usage: ./ipk-l4-scan {-h} [-i interface | --interface interface] \n"
+                    "    [--pu port-ranges | --pt port-ranges | -u port-ranges | -t port-ranges] \n"
+                    "    {-w timeout} [hostname | ip-address]\n\n"
+                    "Options:\n"
+                    "  -h, --help             Show this help message and exit\n"
+                    "  -i, --interface <if>   Specify network interface (or list interfaces if missing)\n"
+                    "  -t, --pt <ports>       Specify TCP port range(s) to scan\n"
+                    "  -u, --pu <ports>       Specify UDP port range(s) to scan\n"
+                    "  -w, --wait <ms>        Set timeout in milliseconds (default: 5000)\n"
+                    "  hostname | ip-address  Target device to scan\n\n"
+                    "Example:\n"
+                    "  ./ipk-l4-scan -i eth0 -t 22,80,443 -u 53 -w 3000 192.168.1.1\n");
 }
 
 /**
@@ -137,13 +166,14 @@ int process_args(int argc, char **argv) {
         {"pt", required_argument, 0, 't'},
         {"pu", required_argument, 0, 'u'},
         {"wait", required_argument, 0, 'w'},
+        {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
     int opt;
-    bool only_opt = true, timeout_set = false;
+    bool only_opt = true, timeout_set = false, help = false;
 
-    while ((opt = getopt_long(argc, argv, ":i:t:u:w:", long_opt, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, ":i:t:u:w:h", long_opt, NULL)) != -1) {
         switch (opt) {
             case 'i':
                 if (parameters.interface != NULL) {
@@ -187,6 +217,13 @@ int process_args(int argc, char **argv) {
                 timeout_set = true;
                 parameters.timeout = atoi(optarg);
                 break;
+            case 'h':
+                if (help) {
+                    fprintf(stderr, "ERROR: redefinition of help\n");
+                    return EXIT_FAILURE;
+                }
+                help = true;
+                break;
             case ':':
                 if (optopt == 'i') {
                     if (only_opt) {
@@ -203,6 +240,16 @@ int process_args(int argc, char **argv) {
             default:
                 fprintf(stderr, "ERROR: unknown parameter -%c\n", optopt);
                 return EXIT_FAILURE;
+        }
+    }
+
+    if (help) {
+        if (only_opt && parameters.interface == NULL && optind == argc) {
+            print_help();
+            exit(0);
+        } else {
+            fprintf(stderr, "ERROR: missuse of help\n");
+            return EXIT_FAILURE;
         }
     }
 

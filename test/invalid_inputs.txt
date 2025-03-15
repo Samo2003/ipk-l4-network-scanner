@@ -28,3 +28,8 @@ localhost
 -i lo -t ,22 localhost
 -i lo -t 22-23-24 localhost
 -i lo ::1 -u 22 -u23
+-h -i lo
+-h localhost
+-h --help
+-i lo -t 22 localhost -h
+-h -w 1000

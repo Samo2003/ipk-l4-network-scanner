@@ -60,10 +60,10 @@ int handle_tcp_msg(char *segment, size_t segment_len, int port) {
     }
 
     if (header->th_flags & TH_RST) {
-        fprintf(stdout, "%d/tcp\tclosed\n", port);
+        fprintf(stdout, "%s %d tcp closed\n", network.ip_str, port);
         return EXIT_SUCCESS;
     } else if (header->th_flags & TH_SYN && header->th_flags & TH_ACK) {
-        fprintf(stdout, "%d/tcp\topen\n", port);
+        fprintf(stdout, "%s %d tcp open\n", network.ip_str, port);
         return EXIT_SUCCESS;
     }
 
