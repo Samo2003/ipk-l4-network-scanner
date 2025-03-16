@@ -19,24 +19,27 @@
  *
  * @param header Pointer to the TCP header structure to be initialized.
  * @param port Destination port to which the TCP packet will be sent.
+ * @param seq Segment sequence number.
  */
-static void prepare_tcp_header(struct tcphdr *header, int port) {
+static void prepare_tcp_header(struct tcphdr *header, int port, uint32_t seq) {
     header->th_dport = htons(port);
     header->th_flags = TH_SYN;
     header->th_off = sizeof(struct tcphdr) / 4;
     header->th_sport = htons(SOURCE_PORT);
     header->th_win = htons(0xffff);
+    header->th_seq = htonl(seq);
 }
 
 /**
  * @brief Sends a TCP SYN message to the specified port.
  *
  * @param port Destination port to which the TCP SYN message will be sent.
+ * @param seq Segment sequence number.
  * @return On success, returns the number of bytes sent. On failure, returns -1 and sets errno.
  */
-int send_tcp_msg(int port) {
+int send_tcp_msg(int port, uint32_t seq) {
     struct tcphdr segment = {0};
-    prepare_tcp_header(&segment, port);
+    prepare_tcp_header(&segment, port, seq);
     segment.th_sum = calculate_checksum((uint16_t *)&segment, sizeof(struct tcphdr), IPPROTO_TCP);
     return sendto(network.sockets[TCP], (void *)&segment, sizeof(struct tcphdr), 0, (struct sockaddr *)&network.dst, sizeof(struct sockaddr_storage));
 }

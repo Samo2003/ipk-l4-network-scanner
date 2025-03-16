@@ -23,9 +23,10 @@
  * and sends it to the destination address stored in the `network` structure.
  *
  * @param port Destination port to which the TCP SYN message will be sent.
+ * @param seq Segment sequence number.
  * @return On success, returns the number of bytes sent. On failure, returns -1 and sets errno.
  */
-int send_tcp_msg(int port);
+int send_tcp_msg(int port, uint32_t seq);
 
 /**
  * @brief Processes a received TCP segment and determines the port state.

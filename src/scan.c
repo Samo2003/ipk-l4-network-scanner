@@ -24,7 +24,8 @@
  * @return EXIT_SUCCESS if the scan completes successfully, or EXIT_FAILURE if an error occurs.
  */
 static int scan(int port, bool tcp) {
-    if ((tcp ? send_tcp_msg(port) : send_udp_msg(port)) < 0) {
+    uint32_t seq = rand() | ((uint32_t)rand() << 16);
+    if ((tcp ? send_tcp_msg(port, seq++) : send_udp_msg(port)) < 0) {
         perror("sendto");
         return EXIT_FAILURE;
     }
@@ -40,7 +41,7 @@ static int scan(int port, bool tcp) {
         if (out_of_time()) {
             if (tcp_retry) {
                 tcp_retry = false;
-                if (send_tcp_msg(port) < 0) {
+                if (send_tcp_msg(port, seq) < 0) {
                     perror("sendto");
                     return EXIT_FAILURE;
                 }

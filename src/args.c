@@ -102,6 +102,10 @@ static bool parse_ports(bool udp) {
     return true;
 }
 
+/**
+ * @brief Prints the help message with usage instructions.
+ *
+ */
 static void print_help(void) {
     fprintf(stdout, "Usage: ./ipk-l4-scan {-h} [-i interface | --interface interface] \n"
                     "    [--pu port-ranges | --pt port-ranges | -u port-ranges | -t port-ranges] \n"
