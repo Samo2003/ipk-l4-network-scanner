@@ -4,5 +4,5 @@ localhost -t 22,23 -i lo
 ::1 -t 22,23 -i lo 
 ::1 -u 22,23 -i lo 
 -i lo -t 22-22 localhost
--i eth0 -t 20-25 scanme.nmap.org
+-i eth0 -t 20-25 scanme.nmap.org -w 2000
 scanme.nmap.org -i eth0 -u 22,53 -w 2000

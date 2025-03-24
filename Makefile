@@ -3,6 +3,7 @@ CFLAGS = -std=c17 -Wextra -Wall -pedantic -g
 PYTHON = python3
 
 TARGET = ipk-l4-scan
+LOGIN = xstefas00
 
 TESTDIR = test
 TEST = test.py
@@ -25,10 +26,14 @@ $(TARGET): $(OBJS)
 test: $(TARGET)
 	$(PYTHON) $(TESTDIR)/$(TEST)
 
+# Zip the project
+zip: clean
+	rm -rf $(LOGIN).zip
+	zip -r $(LOGIN).zip ./ -x "*.git/*" "*.DS_Store"
 
 # Remove object files and target
 clean:
 	rm -f $(TARGET)
 	cd src && rm -f *.o
 
-.PHONY: clean
+.PHONY: clean test zip
