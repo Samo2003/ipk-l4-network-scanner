@@ -138,7 +138,7 @@ This section describes the project's implementation details, including its struc
 
 The project is implemented in **C** and has a modular structure. The source files are in `src/`, and their corresponding header files are in `lib/`. Below is a diagram illustrating how the files are structured within the project, showing their relationships and interactions.
 
-![Project File Hierarchy](doc/file_structure.drawio.png)
+![Project File Hierarchy](doc/file_structure.png)
 
 ### File Overview
 This section describes the contents and responsibilities of the project files:
