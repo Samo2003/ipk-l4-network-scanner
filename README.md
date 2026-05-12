@@ -1,4 +1,4 @@
-# IPK Project 1
+# IPK L4 Network Scanner
 
 ## Introduction
 This project is an L4 network scanner that detects the status of TCP and UDP ports on a specified host or IP address. The scanner resolves hostname into one or more IPv4/IPv6 addresses and uses sockets to send packets to target ports. Based on the responses, it determines whether:  
